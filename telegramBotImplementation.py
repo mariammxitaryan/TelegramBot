@@ -6,6 +6,15 @@ from teleg_data import token
 
 API_URL = "https://yobit.net/api/3/ticker/btc_usd"
 
+# -------------------------------------------------------------
+# Function: fetch_btc_price
+# Description:
+#   Retrieves the current BTC/USD sell price from the Yobit API.
+#   Makes an HTTP GET request, validates the response, and parses the JSON.
+# Returns:
+#   float: The sell price of BTC in USD if successful.
+#   None: If any error occurs during the fetch or parsing.
+# -------------------------------------------------------------
 def fetch_btc_price() -> float | None:
     try:
         response = requests.get(API_URL, timeout=5)
@@ -16,10 +25,28 @@ def fetch_btc_price() -> float | None:
         print(f"[{datetime.now()}] Error fetching BTC price: {e}")
         return None
 
+# -------------------------------------------------------------
+# Function: format_price_message
+# Description:
+#   Formats the BTC price along with a timestamp into a readable message.
+# Parameters:
+#   price (float): The BTC/USD sell price to include in the message.
+# Returns:
+#   str: A formatted string containing the current date, time, and price.
+# -------------------------------------------------------------
 def format_price_message(price: float) -> str:
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
     return f"{timestamp}\nSell BTC price: {price}"
 
+# -------------------------------------------------------------
+# Function: handle_price_request
+# Description:
+#   Handles the '/price' command sent by a user.
+#   Fetches the BTC price, formats the response, and sends it back.
+# Parameters:
+#   bot (telebot.TeleBot): The Telegram bot instance used to send messages.
+#   chat_id (int): The chat identifier where the response should be sent.
+# -------------------------------------------------------------
 def handle_price_request(bot: telebot.TeleBot, chat_id: int) -> None:
     price = fetch_btc_price()
     if price is not None:
@@ -28,6 +55,14 @@ def handle_price_request(bot: telebot.TeleBot, chat_id: int) -> None:
         message = "Sorry, I couldn't retrieve the price right now. Please try again later."
     bot.send_message(chat_id, message)
 
+# -------------------------------------------------------------
+# Function: start_bot
+# Description:
+#   Initializes and starts the Telegram bot.
+#   Sets up command and text handlers, and begins polling.
+# Parameters:
+#   token (str): The Telegram bot token for authentication.
+# -------------------------------------------------------------
 def start_bot(token: str) -> None:
     bot = telebot.TeleBot(token)
 
@@ -58,5 +93,9 @@ def start_bot(token: str) -> None:
             time.sleep(5)
             print("Re-starting polling...")
 
+
+# -------------------------------------------------------------
+# Main Entry Point
+# -------------------------------------------------------------
 if __name__ == '__main__':
     start_bot(token)
